@@ -23,7 +23,7 @@ class TransactionRepository {
   }
 
   public getBalance(): Balance {
-    const balance = this.transactions.reduce(
+    const { income, outcome } = this.transactions.reduce(
       (accumulator: Balance, transaction: Transaction) => {
         switch (transaction.type) {
           case 'income':
@@ -32,9 +32,11 @@ class TransactionRepository {
           case 'outcome':
             accumulator.outcome += transaction.value;
             break;
+
           default:
             break;
         }
+        return accumulator;
       },
       {
         income: 0,
@@ -42,11 +44,16 @@ class TransactionRepository {
         total: 0,
       },
     );
+    const total = income - outcome;
 
-    return balance;
+    return { income, outcome, total };
   }
 
   public create({ title, value, type }: TransactionCreateDTO): Transaction {
+    if (!['income', 'outcome'].includes(type)) {
+      throw Error('Transaction type is invalid!');
+    }
+
     const transaction = {
       title,
       value,
@@ -55,7 +62,7 @@ class TransactionRepository {
 
     const newTransaction = new Transaction(transaction);
     const { total } = this.getBalance();
-    if (type === 'outcome' && total < parseFloat(value)) {
+    if (type === 'outcome' && total < value) {
       throw Error('Your balance is insufficient for this operation');
     }
 

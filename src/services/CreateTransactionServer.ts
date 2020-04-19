@@ -3,7 +3,7 @@ import TransactionRepository from '../repositories/TransactionRepository';
 
 interface CreateTransactionDTO {
   title: string;
-  value: string;
+  value: number;
   type: 'income' | 'outcome';
 }
 class CreateTransactionService {
@@ -14,13 +14,12 @@ class CreateTransactionService {
   }
 
   execute({ title, value, type }: CreateTransactionDTO): Transaction {
-    const transaction = {
+    const transaction = this.transactionRepository.create({
       title,
       value,
       type,
-    };
-    const newTransaction = this.transactionRepository.create(transaction);
-    return newTransaction;
+    });
+    return transaction;
   }
 }
 
