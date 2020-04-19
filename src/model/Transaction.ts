@@ -5,7 +5,7 @@ class Transaction {
 
   title: string;
 
-  value: number;
+  value: string;
 
   type: 'income' | 'outcome';
 
