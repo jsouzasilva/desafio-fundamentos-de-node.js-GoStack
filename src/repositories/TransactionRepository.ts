@@ -7,7 +7,7 @@ interface Balance {
 }
 interface TransactionCreateDTO {
   title: string;
-  value: string;
+  value: number;
   type: 'income' | 'outcome';
 }
 
@@ -18,31 +18,31 @@ class TransactionRepository {
     this.transactions = [];
   }
 
-  public all() {
-    const transactions = {
-      transactions: this.transactions,
-      balance: this.getBalance(),
-    };
-
-    return transactions;
+  public all(): Transaction[] {
+    return this.transactions;
   }
 
   public getBalance(): Balance {
-    const balance = {
-      income: 0,
-      outcome: 0,
-      total: 0,
-    };
+    const balance = this.transactions.reduce(
+      (accumulator: Balance, transaction: Transaction) => {
+        switch (transaction.type) {
+          case 'income':
+            accumulator.income += transaction.value;
+            break;
+          case 'outcome':
+            accumulator.outcome += transaction.value;
+            break;
+          default:
+            break;
+        }
+      },
+      {
+        income: 0,
+        outcome: 0,
+        total: 0,
+      },
+    );
 
-    this.transactions.map(transaction => {
-      if (transaction.type === 'income') {
-        balance.income += parseFloat(transaction.value);
-        balance.total += parseFloat(transaction.value);
-      } else {
-        balance.outcome += parseFloat(transaction.value);
-        balance.total -= parseFloat(transaction.value);
-      }
-    });
     return balance;
   }
 
